@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Draws all Wings of Fire OS artwork.
+"""Draws the Wings of Fire OS artwork that isn't a shipped wallpaper.
 
-Usage: make-artwork.py OUT_DIR "OS Name"
+Usage: make-artwork.py OUT_DIR "OS Name" [WALLPAPER]
 Writes into OUT_DIR:
-  wallpaper.png  1920x1080  desktop background
   grub.png       1024x768   boot menu background
   logo.png       256x256    transparent logo (installer, launcher icon)
   welcome.png    457x300    installer welcome banner
   slide.png      800x480    installer slideshow
+The installer images are cropped from WALLPAPER when given, otherwise drawn.
 """
 import math
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
@@ -91,15 +91,21 @@ def logo(size):
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) not in (3, 4):
         sys.exit(__doc__)
     out = Path(sys.argv[1])
     out.mkdir(parents=True, exist_ok=True)
     name = sys.argv[2]
-    scene(1920, 1080, name).save(out / "wallpaper.png", optimize=True)
+    photo = Image.open(sys.argv[3]).convert("RGB") if len(sys.argv) == 4 else None
+
+    def banner(width, height):
+        if photo is None:
+            return scene(width, height, name)
+        return ImageOps.fit(photo, (width, height), Image.LANCZOS)
+
     scene(1024, 768, name).save(out / "grub.png", optimize=True)
-    scene(457, 300, name).save(out / "welcome.png", optimize=True)
-    scene(800, 480, name).save(out / "slide.png", optimize=True)
+    banner(457, 300).save(out / "welcome.png", optimize=True)
+    banner(800, 480).save(out / "slide.png", optimize=True)
     logo(256).save(out / "logo.png", optimize=True)
 
 

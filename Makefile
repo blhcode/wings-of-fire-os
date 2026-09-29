@@ -29,7 +29,7 @@ reset-vm:
 	rm -rf build/vm
 
 artwork:
-	. config/os.conf && python3 scripts/make-artwork.py build/art "$$OS_NAME"
+	. config/os.conf && python3 scripts/make-artwork.py build/art "$$OS_NAME" "artwork/wallpapers/$$DEFAULT_WALLPAPER"
 
 clean:
 	sudo ./build.sh --clean

@@ -146,7 +146,10 @@ fi
 
 log "Applying overlay"
 cp -a --no-preserve=ownership overlay/. "$ROOTFS/"
-if python3 scripts/make-artwork.py "$WORK/art" "$OS_NAME"; then
+[[ -f artwork/wallpapers/$DEFAULT_WALLPAPER ]] || die "DEFAULT_WALLPAPER not found: artwork/wallpapers/$DEFAULT_WALLPAPER"
+install -d "$ROOTFS/usr/share/backgrounds/$OS_ID"
+install -m 644 artwork/wallpapers/* "$ROOTFS/usr/share/backgrounds/$OS_ID/"
+if python3 scripts/make-artwork.py "$WORK/art" "$OS_NAME" "artwork/wallpapers/$DEFAULT_WALLPAPER"; then
   install -d "$ROOTFS/usr/share/$OS_ID/artwork"
   install -m 644 "$WORK"/art/*.png "$ROOTFS/usr/share/$OS_ID/artwork/"
   install -D -m 644 "$WORK/art/grub.png" "$ISO_DIR/boot/grub/background.png"
@@ -156,7 +159,7 @@ fi
 
 HOOK_ENV=(
   "OS_NAME=$OS_NAME" "OS_ID=$OS_ID" "OS_VERSION=$OS_VERSION" "OS_CODENAME=$OS_CODENAME"
-  "OS_HOSTNAME=$OS_HOSTNAME" "DEBIAN_SUITE=$DEBIAN_SUITE"
+  "OS_HOSTNAME=$OS_HOSTNAME" "DEBIAN_SUITE=$DEBIAN_SUITE" "DEFAULT_WALLPAPER=$DEFAULT_WALLPAPER"
 )
 for hook in hooks/*.sh; do
   [[ -e $hook ]] || continue

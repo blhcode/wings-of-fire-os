@@ -35,13 +35,14 @@ Ubuntu drive is the 1.8 TB NVMe, the new SSDs are the ~128 GB ones.
 
 | Path | Purpose |
 | --- | --- |
-| `config/os.conf` | Name, version, Debian release, desktop, locale |
+| `config/os.conf` | Name, version, Debian release, desktop, default wallpaper, locale |
+| `artwork/wallpapers/` | Wallpapers shipped in `/usr/share/backgrounds/wingsoffire/` |
 | `config/packages/*.list` | Packages installed into the image (`base.list` + the chosen desktop + installer) |
 | `config/installer-pool.list` | Bootloader packages shipped on the ISO for offline installs |
 | `config/grub.cfg.in` | Boot menu of the ISO |
 | `overlay/` | Files copied verbatim into the root filesystem |
 | `hooks/*.sh` | Scripts run inside the image after packages are installed, in order |
-| `scripts/make-artwork.py` | Draws the wallpaper, boot menu background and installer artwork |
+| `scripts/make-artwork.py` | Draws the logo, boot menu background and installer artwork |
 | `scripts/run-qemu.sh` | Runs the ISO / installed system in QEMU |
 | `build.sh` | The build pipeline |
 
