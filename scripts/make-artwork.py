@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""Draws the desktop wallpaper and GRUB background.
+"""Draws all Wings of Fire OS artwork.
 
-Usage: make-wallpaper.py OUT_DIR "OS Name"
-Writes OUT_DIR/wallpaper.png (1920x1080) and OUT_DIR/grub.png (1024x768).
+Usage: make-artwork.py OUT_DIR "OS Name"
+Writes into OUT_DIR:
+  wallpaper.png  1920x1080  desktop background
+  grub.png       1024x768   boot menu background
+  logo.png       256x256    transparent logo (installer, launcher icon)
+  welcome.png    457x300    installer welcome banner
+  slide.png      800x480    installer slideshow
 """
 import math
 import sys
@@ -43,38 +48,46 @@ def draw_wing(draw, cx, cy, size, side):
         draw.polygon([base_a, mid, tip, base_b], fill=colour + (235,))
 
 
-def render(width, height, name):
-    img = Image.new("RGB", (width, height))
-    sky = ImageDraw.Draw(img)
-    for y in range(height):
-        sky.line([(0, y), (width, y)], fill=sky_colour(y / (height - 1)))
-
+def wings_layer(width, height, cx, cy, size):
+    """Transparent layer with both wings, the body and a soft glow behind them."""
     wings = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     wd = ImageDraw.Draw(wings)
-    cx, cy, size = width / 2, height * 0.52, min(width, height) * 0.42
     for side in (1, -1):
         draw_wing(wd, cx + side * size * 0.04, cy, size, side)
     wd.ellipse([cx - size * 0.05, cy - size * 0.12, cx + size * 0.05, cy + size * 0.1],
                fill=(255, 235, 150, 255))
-
     glow = wings.filter(ImageFilter.GaussianBlur(size * 0.08))
-    img.paste(glow, (0, 0), glow)
-    img.paste(wings, (0, 0), wings)
+    return Image.alpha_composite(glow, wings)
 
-    text_layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    td = ImageDraw.Draw(text_layer)
+
+def glowing_text(img, text, top):
+    width, height = img.size
     try:
         font = ImageFont.truetype(FONT, round(height * 0.07))
     except OSError:
         font = ImageFont.load_default()
-    box = td.textbbox((0, 0), name, font=font)
-    pos = ((width - (box[2] - box[0])) / 2, height * 0.74)
-    td.text(pos, name, font=font, fill=(255, 150, 40, 255))
-    text_glow = text_layer.filter(ImageFilter.GaussianBlur(height * 0.012))
-    img.paste(text_glow, (0, 0), text_glow)
-    td.text(pos, name, font=font, fill=(255, 240, 210, 255))
-    img.paste(text_layer, (0, 0), text_layer)
-    return img
+    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    td = ImageDraw.Draw(layer)
+    box = td.textbbox((0, 0), text, font=font)
+    pos = ((width - (box[2] - box[0])) / 2, top)
+    td.text(pos, text, font=font, fill=(255, 150, 40, 255))
+    layer = layer.filter(ImageFilter.GaussianBlur(height * 0.012))
+    ImageDraw.Draw(layer).text(pos, text, font=font, fill=(255, 240, 210, 255))
+    return Image.alpha_composite(img, layer)
+
+
+def scene(width, height, name):
+    img = Image.new("RGBA", (width, height))
+    sky = ImageDraw.Draw(img)
+    for y in range(height):
+        sky.line([(0, y), (width, y)], fill=sky_colour(y / (height - 1)))
+    img = Image.alpha_composite(
+        img, wings_layer(width, height, width / 2, height * 0.52, min(width, height) * 0.42))
+    return glowing_text(img, name, height * 0.74).convert("RGB")
+
+
+def logo(size):
+    return wings_layer(size, size, size / 2, size * 0.6, size * 0.42)
 
 
 def main():
@@ -83,8 +96,11 @@ def main():
     out = Path(sys.argv[1])
     out.mkdir(parents=True, exist_ok=True)
     name = sys.argv[2]
-    render(1920, 1080, name).save(out / "wallpaper.png", optimize=True)
-    render(1024, 768, name).save(out / "grub.png", optimize=True)
+    scene(1920, 1080, name).save(out / "wallpaper.png", optimize=True)
+    scene(1024, 768, name).save(out / "grub.png", optimize=True)
+    scene(457, 300, name).save(out / "welcome.png", optimize=True)
+    scene(800, 480, name).save(out / "slide.png", optimize=True)
+    logo(256).save(out / "logo.png", optimize=True)
 
 
 if __name__ == "__main__":

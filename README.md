@@ -14,25 +14,45 @@ make run     # boot the ISO in QEMU (BIOS); `make run-uefi` for UEFI
 
 The live session logs in automatically as `dragon` (password `live`).
 
+## Installing
+
+The live desktop has an **Install Wings of Fire OS** icon (the Calamares installer). It works
+offline: the bootloader packages it needs are on the ISO. It asks for confirmation before
+touching any disk.
+
+Rehearse in a VM first. This mimics the real PC: UEFI firmware and two blank 128 GB SSDs.
+
+```sh
+make run-install     # boot the ISO with the virtual SSDs, run the installer
+make run-installed   # boot the installed system without the ISO
+make reset-vm        # wipe the virtual SSDs to start over
+```
+
+On real hardware, check the disk picked on the installer's partitioning page: the existing
+Ubuntu drive is the 1.8 TB NVMe, the new SSDs are the ~128 GB ones.
+
 ## Layout
 
 | Path | Purpose |
 | --- | --- |
 | `config/os.conf` | Name, version, Debian release, desktop, locale |
-| `config/packages/*.list` | Packages installed into the image (`base.list` + the chosen desktop) |
+| `config/packages/*.list` | Packages installed into the image (`base.list` + the chosen desktop + installer) |
+| `config/installer-pool.list` | Bootloader packages shipped on the ISO for offline installs |
 | `config/grub.cfg.in` | Boot menu of the ISO |
 | `overlay/` | Files copied verbatim into the root filesystem |
 | `hooks/*.sh` | Scripts run inside the image after packages are installed, in order |
-| `scripts/make-wallpaper.py` | Draws the wallpaper and boot menu background |
+| `scripts/make-artwork.py` | Draws the wallpaper, boot menu background and installer artwork |
+| `scripts/run-qemu.sh` | Runs the ISO / installed system in QEMU |
 | `build.sh` | The build pipeline |
 
 ## How the build works
 
 1. `debootstrap` creates a minimal Debian root filesystem in `build/rootfs`.
 2. Packages from `config/packages/` are installed inside it with `apt`.
-3. `overlay/` is copied in and `hooks/` are run (branding, wallpaper).
-4. The root filesystem is compressed into `live/filesystem.squashfs`.
-5. `grub-mkrescue` produces a hybrid ISO that boots on BIOS and UEFI, from a DVD or USB stick.
+3. The installer's bootloader packages are downloaded into an APT repository on the ISO (`pool/`, `dists/`).
+4. `overlay/` is copied in and `hooks/` are run (branding, wallpaper, installer branding).
+5. The root filesystem is compressed into `live/filesystem.squashfs`.
+6. `grub-mkrescue` produces a hybrid ISO that boots on BIOS and UEFI, from a DVD or USB stick.
 
 Downloaded packages are cached in `build/cache`, so rebuilds are much faster.
 `make clean` keeps that cache; `make distclean` removes it.

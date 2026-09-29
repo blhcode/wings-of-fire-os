@@ -2,7 +2,7 @@
 # Runs inside the chroot. Makes our wallpaper the default desktop background.
 set -eu
 
-WALLPAPER="/usr/share/wallpapers/$OS_ID/wallpaper.png"
+WALLPAPER="/usr/share/$OS_ID/artwork/wallpaper.png"
 [ -f "$WALLPAPER" ] || exit 0
 
 # Debian's desktops (XFCE included) read their default background through this alternative.

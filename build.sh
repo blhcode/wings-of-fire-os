@@ -49,6 +49,7 @@ unmount_rootfs() {
 remove_tree() { unmount_rootfs; rm -rf --one-file-system "$@"; }
 
 read_packages() { sed 's/#.*//' "$@" | tr -s '[:space:]' '\n' | sed '/^$/d'; }
+read_groups() { sed -e 's/#.*//' -e '/^[[:space:]]*$/d' "$@"; }
 
 [[ $EUID -eq 0 ]] || die "needs root: run 'sudo ./build.sh' (or 'make build')"
 
@@ -59,7 +60,7 @@ case "${1:-}" in
   *) die "unknown option: $1" ;;
 esac
 
-for tool in debootstrap mksquashfs grub-mkrescue xorriso mcopy; do
+for tool in debootstrap mksquashfs grub-mkrescue xorriso mcopy apt-ftparchive; do
   command -v "$tool" >/dev/null || die "missing '$tool' — run 'make deps'"
 done
 [[ -f /usr/share/keyrings/debian-archive-keyring.gpg ]] || die "missing Debian keyring — run 'make deps'"
@@ -70,6 +71,7 @@ if [[ $DESKTOP != none ]]; then
   [[ -f config/packages/$DESKTOP.list ]] || die "no package list for DESKTOP=$DESKTOP"
   PACKAGE_LISTS+=("config/packages/$DESKTOP.list")
 fi
+[[ $INSTALLER == yes ]] && PACKAGE_LISTS+=(config/packages/installer.list)
 mapfile -t PACKAGES < <(read_packages "${PACKAGE_LISTS[@]}")
 
 trap unmount_rootfs EXIT
@@ -122,13 +124,34 @@ RECOMMENDS_OPT=()
 in_chroot apt-get update
 in_chroot apt-get install -y "${RECOMMENDS_OPT[@]}" "${PACKAGES[@]}"
 
+if [[ $INSTALLER == yes ]]; then
+  log "Building the installer's offline package repository"
+  mkdir -p "$ROOTFS/tmp/pool/partial"
+  while read -r -a group; do
+    in_chroot apt-get install -y --download-only -o Dir::Cache::archives=/tmp/pool "${group[@]}" </dev/null
+  done < <(read_groups config/installer-pool.list)
+  REPO_INDEX="$ISO_DIR/dists/$DEBIAN_SUITE/main/binary-$ARCH"
+  mkdir -p "$ISO_DIR/pool/main" "$REPO_INDEX"
+  mv "$ROOTFS"/tmp/pool/*.deb "$ISO_DIR/pool/main/"
+  (cd "$ISO_DIR" && apt-ftparchive packages pool > "$REPO_INDEX/Packages")
+  gzip -9kf "$REPO_INDEX/Packages"
+  apt-ftparchive \
+    -o APT::FTPArchive::Release::Suite="$DEBIAN_SUITE" \
+    -o APT::FTPArchive::Release::Codename="$DEBIAN_SUITE" \
+    -o APT::FTPArchive::Release::Components=main \
+    -o APT::FTPArchive::Release::Architectures="$ARCH" \
+    release "$ISO_DIR/dists/$DEBIAN_SUITE" > "$WORK/Release"
+  mv "$WORK/Release" "$ISO_DIR/dists/$DEBIAN_SUITE/Release"
+fi
+
 log "Applying overlay"
 cp -a --no-preserve=ownership overlay/. "$ROOTFS/"
-if python3 scripts/make-wallpaper.py "$WORK/art" "$OS_NAME"; then
-  install -D -m 644 "$WORK/art/wallpaper.png" "$ROOTFS/usr/share/wallpapers/$OS_ID/wallpaper.png"
+if python3 scripts/make-artwork.py "$WORK/art" "$OS_NAME"; then
+  install -d "$ROOTFS/usr/share/$OS_ID/artwork"
+  install -m 644 "$WORK"/art/*.png "$ROOTFS/usr/share/$OS_ID/artwork/"
   install -D -m 644 "$WORK/art/grub.png" "$ISO_DIR/boot/grub/background.png"
 else
-  echo "warning: could not draw wallpaper (is python3-pil installed?), continuing without it" >&2
+  echo "warning: could not draw artwork (is python3-pil installed?), continuing without it" >&2
 fi
 
 HOOK_ENV=(
