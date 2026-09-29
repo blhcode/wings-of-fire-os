@@ -1,0 +1,30 @@
+# Installed in every build. One or more packages per line; "#" starts a comment.
+
+# Kernel, init and live-boot machinery
+linux-image-amd64
+systemd-sysv
+live-boot
+live-config
+live-config-systemd
+
+# Hardware support
+firmware-linux-free
+firmware-misc-nonfree
+firmware-iwlwifi
+firmware-realtek
+amd64-microcode
+intel-microcode
+
+# Core userland
+sudo
+locales
+tzdata
+console-setup
+keyboard-configuration
+network-manager
+ca-certificates
+curl
+nano
+less
+htop
+bash-completion

@@ -1,0 +1,16 @@
+# XFCE desktop, used when DESKTOP="xfce".
+
+xserver-xorg
+lightdm
+lightdm-gtk-greeter
+xfce4
+xfce4-terminal
+thunar
+mousepad
+network-manager-gnome
+pipewire-audio
+dbus-x11
+polkitd
+desktop-base
+fonts-noto-core
+firefox-esr
