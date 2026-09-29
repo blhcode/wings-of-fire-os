@@ -149,6 +149,7 @@ cp -a --no-preserve=ownership overlay/. "$ROOTFS/"
 [[ -f artwork/wallpapers/$DEFAULT_WALLPAPER ]] || die "DEFAULT_WALLPAPER not found: artwork/wallpapers/$DEFAULT_WALLPAPER"
 install -d "$ROOTFS/usr/share/backgrounds/$OS_ID"
 install -m 644 artwork/wallpapers/* "$ROOTFS/usr/share/backgrounds/$OS_ID/"
+install -m 644 artwork/bootlogo.png "$ROOTFS/usr/share/plymouth/themes/wingsoffire/bootlogo.png"
 if python3 scripts/make-artwork.py "$WORK/art" "$OS_NAME" "artwork/wallpapers/$DEFAULT_WALLPAPER"; then
   install -d "$ROOTFS/usr/share/$OS_ID/artwork"
   install -m 644 "$WORK"/art/*.png "$ROOTFS/usr/share/$OS_ID/artwork/"

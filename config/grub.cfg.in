@@ -14,7 +14,7 @@ set menu_color_normal=light-gray/black
 set menu_color_highlight=yellow/red
 
 menuentry "@OS_NAME@ @OS_VERSION@ (Live)" {
-  linux /live/vmlinuz boot=live components quiet @LIVE_ARGS@
+  linux /live/vmlinuz boot=live components quiet splash @LIVE_ARGS@
   initrd /live/initrd.img
 }
 
@@ -24,7 +24,7 @@ menuentry "@OS_NAME@ @OS_VERSION@ (Safe graphics)" {
 }
 
 menuentry "@OS_NAME@ @OS_VERSION@ (Load into RAM)" {
-  linux /live/vmlinuz boot=live components quiet toram @LIVE_ARGS@
+  linux /live/vmlinuz boot=live components quiet splash toram @LIVE_ARGS@
   initrd /live/initrd.img
 }
 

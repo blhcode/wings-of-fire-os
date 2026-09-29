@@ -7,6 +7,10 @@ live-boot
 live-config
 live-config-systemd
 
+# Boot loading screen (theme in overlay/usr/share/plymouth/themes/wingsoffire)
+plymouth
+plymouth-label
+
 # Hardware support
 firmware-linux-free
 firmware-misc-nonfree

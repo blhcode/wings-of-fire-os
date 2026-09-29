@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Wings of Fire OS
+Description=The Wings of Fire OS emblem on black
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/wingsoffire
+ScriptFile=/usr/share/plymouth/themes/wingsoffire/wingsoffire.script

@@ -1,5 +1,8 @@
 # Wings of Fire OS
 
+A fan-made OS themed around Tui T. Sutherland's *Wings of Fire* book series. Not affiliated
+with the author or Scholastic.
+
 A Debian-based Linux distribution with its own branding, package selection and live ISO.
 It uses Debian's kernel and packages, and builds the system image itself with `debootstrap`
 (no live-build or remastering of an existing ISO).
