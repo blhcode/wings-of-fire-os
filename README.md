@@ -40,6 +40,7 @@ Ubuntu drive is the 1.8 TB NVMe, the new SSDs are the ~128 GB ones.
 | --- | --- |
 | `config/os.conf` | Name, version, Debian release, desktop, default wallpaper, locale |
 | `artwork/wallpapers/` | Wallpapers shipped in `/usr/share/backgrounds/wingsoffire/` |
+| `artwork/bootlogo.png` | Emblem on the boot loading screen (Plymouth theme in `overlay/usr/share/plymouth/themes/wingsoffire/`) |
 | `config/packages/*.list` | Packages installed into the image (`base.list` + the chosen desktop + installer) |
 | `config/installer-pool.list` | Bootloader packages shipped on the ISO for offline installs |
 | `config/grub.cfg.in` | Boot menu of the ISO |

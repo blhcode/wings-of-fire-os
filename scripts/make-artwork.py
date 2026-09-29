@@ -1,35 +1,57 @@
 #!/usr/bin/env python3
 """Draws the Wings of Fire OS artwork that isn't a shipped wallpaper.
 
-Usage: make-artwork.py OUT_DIR "OS Name" [WALLPAPER]
+Usage: make-artwork.py OUT_DIR [WALLPAPER]
 Writes into OUT_DIR:
-  grub.png       1024x768   boot menu background
-  logo.png       256x256    transparent logo (installer, launcher icon)
-  welcome.png    457x300    installer welcome banner
-  slide.png      800x480    installer slideshow
+  grub.png           1024x768   boot menu background
+  logo.png           256x256    transparent logo (installer, launcher icon)
+  welcome.png        457x300    installer welcome banner
+  slide.png          800x480    installer slideshow
+  wordmark.png       stacked "Wings / of / Fire / OS" in the book-cover lettering style
+  wordmark-wide.png  the same on one line (boot splash)
+  spinner.png        loading ring that fits around artwork/bootlogo.png (boot splash)
 The installer images are cropped from WALLPAPER when given, otherwise drawn.
 """
 import math
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageFont
 
-FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+ARTWORK = Path(__file__).resolve().parent.parent / "artwork"
+WORDMARK_FONT = ARTWORK / "fonts/CinzelDecorative-Bold.ttf"
 
 SKY = [(0.0, (10, 3, 8)), (0.55, (70, 8, 12)), (1.0, (215, 80, 18))]
 FEATHERS = [(255, 220, 90), (255, 170, 40), (245, 110, 25), (215, 55, 20), (160, 25, 20)]
+# Top-to-bottom colour of the Wings of Fire title: dark red, through orange, to gold and back.
+FIRE = [(0.0, (130, 14, 18)), (0.28, (212, 40, 28)), (0.45, (242, 112, 30)),
+        (0.55, (255, 190, 64)), (0.68, (242, 112, 30)), (0.85, (212, 40, 28)), (1.0, (150, 18, 20))]
+
+# Lines of (text, relative size, rise) segments. Like the book covers, the first letters are
+# enlarged and "of" is small.
+STACKED = [
+    [("W", 1.3, 0), ("INGS", 1.0, 0)],
+    [("OF", 0.45, 0)],
+    [("F", 1.3, 0), ("IRE", 1.0, 0), (" ", 1.2, 0), ("OS", 1.0, 0)],
+]
+WIDE = [[("W", 1.3, 0), ("INGS", 1.0, 0), (" ", 0.8, 0), ("OF", 0.45, 0.2), (" ", 0.8, 0),
+         ("F", 1.3, 0), ("IRE", 1.0, 0), (" ", 1.2, 0), ("OS", 1.0, 0)]]
+
+# Circle of artwork/bootlogo.png (500x500): centre and radius in pixels.
+EMBLEM_CENTRE = (251, 242.5)
+EMBLEM_RADIUS = 217
+SPINNER_SIZE = 540
 
 
 def lerp(a, b, t):
     return tuple(round(x + (y - x) * t) for x, y in zip(a, b))
 
 
-def sky_colour(t):
-    for (t0, c0), (t1, c1) in zip(SKY, SKY[1:]):
+def gradient_colour(stops, t):
+    for (t0, c0), (t1, c1) in zip(stops, stops[1:]):
         if t <= t1:
             return lerp(c0, c1, (t - t0) / (t1 - t0))
-    return SKY[-1][1]
+    return stops[-1][1]
 
 
 def draw_wing(draw, cx, cy, size, side):
@@ -60,30 +82,107 @@ def wings_layer(width, height, cx, cy, size):
     return Image.alpha_composite(glow, wings)
 
 
-def glowing_text(img, text, top):
-    width, height = img.size
-    try:
-        font = ImageFont.truetype(FONT, round(height * 0.07))
-    except OSError:
-        font = ImageFont.load_default()
-    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
-    td = ImageDraw.Draw(layer)
-    box = td.textbbox((0, 0), text, font=font)
-    pos = ((width - (box[2] - box[0])) / 2, top)
-    td.text(pos, text, font=font, fill=(255, 150, 40, 255))
-    layer = layer.filter(ImageFilter.GaussianBlur(height * 0.012))
-    ImageDraw.Draw(layer).text(pos, text, font=font, fill=(255, 240, 210, 255))
-    return Image.alpha_composite(img, layer)
+def wordmark(lines, height):
+    """Renders lines of segments in fire-gradient lettering, trimmed and scaled to `height`."""
+    base = 240
+    fonts = {}
+
+    def font(scale):
+        size = round(base * scale)
+        if size not in fonts:
+            fonts[size] = ImageFont.truetype(str(WORDMARK_FONT), size)
+        return fonts[size]
+
+    layout = []
+    for line in lines:
+        x, top, bottom, segs = 0.0, 0, 0, []
+        for text, scale, rise in line:
+            f = font(scale)
+            _, t, _, b = f.getbbox(text, anchor="ls")
+            lift = rise * base
+            segs.append((x, text, f, lift))
+            top, bottom = min(top, t - lift), max(bottom, b - lift)
+            x += f.getlength(text)
+        layout.append((segs, x, top, bottom))
+
+    width = max(w for _, w, _, _ in layout)
+    gap = -base * 0.06
+    pad = base * 0.5
+    canvas_h = sum(b - t for _, _, t, b in layout) + gap * (len(layout) - 1) + 2 * pad
+    mask = Image.new("L", (round(width + 2 * pad), round(canvas_h)), 0)
+    draw = ImageDraw.Draw(mask)
+    y = pad
+    for segs, line_w, top, bottom in layout:
+        x0 = pad + (width - line_w) / 2
+        for x, text, f, lift in segs:
+            draw.text((x0 + x, y - top - lift), text, font=f, fill=255, anchor="ls")
+        y += bottom - top + gap
+
+    left, top, right, bottom = mask.getbbox()
+    fill = Image.new("RGB", mask.size)
+    fd = ImageDraw.Draw(fill)
+    for row in range(mask.height):
+        t = min(max((row - top) / (bottom - top), 0), 1)
+        fd.line([(0, row), (mask.width, row)], fill=gradient_colour(FIRE, t))
+
+    edge = mask.filter(ImageFilter.MaxFilter(7))
+    glow = edge.filter(ImageFilter.GaussianBlur(base * 0.06)).point(lambda v: v * 0.55)
+    out = Image.new("RGBA", mask.size, (0, 0, 0, 0))
+    out = Image.alpha_composite(out, solid((255, 120, 30), glow))
+    out = Image.alpha_composite(out, solid((70, 8, 10), edge))
+    out.paste(fill, (0, 0), mask)
+
+    out = out.crop(out.getbbox())
+    return out.resize((round(out.width * height / out.height), height), Image.LANCZOS)
 
 
-def scene(width, height, name):
+def solid(colour, alpha):
+    layer = Image.new("RGBA", alpha.size, colour + (0,))
+    layer.putalpha(alpha)
+    return layer
+
+
+def spinner():
+    """Faint full ring plus a bright arc with a fading tail, centred for rotation.
+
+    Drawn at the bootlogo's scale: the ring hugs the emblem's circle when both are scaled equally.
+    """
+    scale = 4
+    size = SPINNER_SIZE * scale
+    c = size / 2
+    radius = (EMBLEM_RADIUS + 18) * scale
+    thickness = 13 * scale
+    ring = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(ring)
+    box = [c - radius, c - radius, c + radius, c + radius]
+    draw.ellipse(box, outline=(90, 200, 255, 45), width=thickness)
+    steps = 240
+    sweep = 280
+    for i in range(steps):
+        t = i / steps
+        start = -90 + t * sweep
+        colour = lerp((40, 170, 255), (215, 250, 255), t)
+        draw.arc(box, start, start + sweep / steps + 0.6, fill=colour + (round(255 * t ** 0.9),),
+                 width=thickness)
+    head = math.radians(-90 + sweep)
+    hx, hy = c + radius * math.cos(head), c + radius * math.sin(head)
+    dot = thickness * 0.9
+    draw.ellipse([hx - dot, hy - dot, hx + dot, hy + dot], fill=(235, 252, 255, 255))
+    ring = ring.resize((SPINNER_SIZE, SPINNER_SIZE), Image.LANCZOS)
+    glow = ring.filter(ImageFilter.GaussianBlur(6))
+    return Image.alpha_composite(glow, ring)
+
+
+def scene(width, height):
     img = Image.new("RGBA", (width, height))
     sky = ImageDraw.Draw(img)
     for y in range(height):
-        sky.line([(0, y), (width, y)], fill=sky_colour(y / (height - 1)))
+        sky.line([(0, y), (width, y)], fill=gradient_colour(SKY, y / (height - 1)))
     img = Image.alpha_composite(
-        img, wings_layer(width, height, width / 2, height * 0.52, min(width, height) * 0.42))
-    return glowing_text(img, name, height * 0.74).convert("RGB")
+        img, wings_layer(width, height, width / 2, height * 0.46, min(width, height) * 0.38))
+    mark = wordmark(WIDE, round(height * 0.09))
+    img.alpha_composite(mark, (round((width - mark.width) / 2), round(height * 0.6)))
+    return img.convert("RGB")
 
 
 def logo(size):
@@ -91,22 +190,24 @@ def logo(size):
 
 
 def main():
-    if len(sys.argv) not in (3, 4):
+    if len(sys.argv) not in (2, 3):
         sys.exit(__doc__)
     out = Path(sys.argv[1])
     out.mkdir(parents=True, exist_ok=True)
-    name = sys.argv[2]
-    photo = Image.open(sys.argv[3]).convert("RGB") if len(sys.argv) == 4 else None
+    photo = Image.open(sys.argv[2]).convert("RGB") if len(sys.argv) == 3 else None
 
     def banner(width, height):
         if photo is None:
-            return scene(width, height, name)
+            return scene(width, height)
         return ImageOps.fit(photo, (width, height), Image.LANCZOS)
 
-    scene(1024, 768, name).save(out / "grub.png", optimize=True)
+    scene(1024, 768).save(out / "grub.png", optimize=True)
     banner(457, 300).save(out / "welcome.png", optimize=True)
     banner(800, 480).save(out / "slide.png", optimize=True)
     logo(256).save(out / "logo.png", optimize=True)
+    wordmark(STACKED, 480).save(out / "wordmark.png", optimize=True)
+    wordmark(WIDE, 160).save(out / "wordmark-wide.png", optimize=True)
+    spinner().save(out / "spinner.png", optimize=True)
 
 
 if __name__ == "__main__":

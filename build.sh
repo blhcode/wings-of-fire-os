@@ -149,14 +149,14 @@ cp -a --no-preserve=ownership overlay/. "$ROOTFS/"
 [[ -f artwork/wallpapers/$DEFAULT_WALLPAPER ]] || die "DEFAULT_WALLPAPER not found: artwork/wallpapers/$DEFAULT_WALLPAPER"
 install -d "$ROOTFS/usr/share/backgrounds/$OS_ID"
 install -m 644 artwork/wallpapers/* "$ROOTFS/usr/share/backgrounds/$OS_ID/"
-install -m 644 artwork/bootlogo.png "$ROOTFS/usr/share/plymouth/themes/wingsoffire/bootlogo.png"
-if python3 scripts/make-artwork.py "$WORK/art" "$OS_NAME" "artwork/wallpapers/$DEFAULT_WALLPAPER"; then
-  install -d "$ROOTFS/usr/share/$OS_ID/artwork"
-  install -m 644 "$WORK"/art/*.png "$ROOTFS/usr/share/$OS_ID/artwork/"
-  install -D -m 644 "$WORK/art/grub.png" "$ISO_DIR/boot/grub/background.png"
-else
-  echo "warning: could not draw artwork (is python3-pil installed?), continuing without it" >&2
-fi
+install -D -m 644 artwork/fonts/*.ttf -t "$ROOTFS/usr/share/fonts/truetype/cinzel-decorative/"
+install -D -m 644 artwork/fonts/OFL.txt -t "$ROOTFS/usr/share/doc/fonts-cinzel-decorative/"
+python3 scripts/make-artwork.py "$WORK/art" "artwork/wallpapers/$DEFAULT_WALLPAPER" \
+  || die "could not draw artwork (is python3-pil installed? run 'make deps')"
+install -D -m 644 "$WORK"/art/*.png -t "$ROOTFS/usr/share/$OS_ID/artwork/"
+install -D -m 644 "$WORK/art/grub.png" "$ISO_DIR/boot/grub/background.png"
+install -m 644 artwork/bootlogo.png "$WORK/art/spinner.png" "$WORK/art/wordmark-wide.png" \
+  "$ROOTFS/usr/share/plymouth/themes/wingsoffire/"
 
 HOOK_ENV=(
   "OS_NAME=$OS_NAME" "OS_ID=$OS_ID" "OS_VERSION=$OS_VERSION" "OS_CODENAME=$OS_CODENAME"
