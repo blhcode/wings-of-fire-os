@@ -149,8 +149,6 @@ cp -a --no-preserve=ownership overlay/. "$ROOTFS/"
 [[ -f artwork/wallpapers/$DEFAULT_WALLPAPER ]] || die "DEFAULT_WALLPAPER not found: artwork/wallpapers/$DEFAULT_WALLPAPER"
 install -d "$ROOTFS/usr/share/backgrounds/$OS_ID"
 install -m 644 artwork/wallpapers/* "$ROOTFS/usr/share/backgrounds/$OS_ID/"
-install -D -m 644 artwork/fonts/*.ttf -t "$ROOTFS/usr/share/fonts/truetype/cinzel-decorative/"
-install -D -m 644 artwork/fonts/OFL.txt -t "$ROOTFS/usr/share/doc/fonts-cinzel-decorative/"
 python3 scripts/make-artwork.py "$WORK/art" "artwork/wallpapers/$DEFAULT_WALLPAPER" \
   || die "could not draw artwork (is python3-pil installed? run 'make deps')"
 install -D -m 644 "$WORK"/art/*.png -t "$ROOTFS/usr/share/$OS_ID/artwork/"

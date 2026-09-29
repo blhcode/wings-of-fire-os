@@ -19,7 +19,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageFont
 
 ARTWORK = Path(__file__).resolve().parent.parent / "artwork"
-WORDMARK_FONT = ARTWORK / "fonts/CinzelDecorative-Bold.ttf"
+WORDMARK_FONT = ARTWORK / "fonts/WingsOfFireTitle.otf"
 
 SKY = [(0.0, (10, 3, 8)), (0.55, (70, 8, 12)), (1.0, (215, 80, 18))]
 FEATHERS = [(255, 220, 90), (255, 170, 40), (245, 110, 25), (215, 55, 20), (160, 25, 20)]
@@ -27,15 +27,11 @@ FEATHERS = [(255, 220, 90), (255, 170, 40), (245, 110, 25), (215, 55, 20), (160,
 FIRE = [(0.0, (130, 14, 18)), (0.28, (212, 40, 28)), (0.45, (242, 112, 30)),
         (0.55, (255, 190, 64)), (0.68, (242, 112, 30)), (0.85, (212, 40, 28)), (1.0, (150, 18, 20))]
 
-# Lines of (text, relative size, rise) segments. Like the book covers, the first letters are
-# enlarged and "of" is small.
-STACKED = [
-    [("W", 1.3, 0), ("INGS", 1.0, 0)],
-    [("OF", 0.45, 0)],
-    [("F", 1.3, 0), ("IRE", 1.0, 0), (" ", 1.2, 0), ("OS", 1.0, 0)],
-]
-WIDE = [[("W", 1.3, 0), ("INGS", 1.0, 0), (" ", 0.8, 0), ("OF", 0.45, 0.2), (" ", 0.8, 0),
-         ("F", 1.3, 0), ("IRE", 1.0, 0), (" ", 1.2, 0), ("OS", 1.0, 0)]]
+# WingsOfFireTitle.otf (traced from the book logo by scripts/trace-font.py) only has the glyphs
+# W I N G S O F R E, space, and "o" "f" for the small raised "OF". Its spacing is the logo's own,
+# so "WINGSofFIRE" without spaces reproduces the logo exactly.
+STACKED = ["WINGS", "of", "FIRE OS"]
+WIDE = ["WINGSofFIRE OS"]
 
 # Circle of artwork/bootlogo.png (500x500): centre and radius in pixels.
 EMBLEM_CENTRE = (251, 242.5)
@@ -83,39 +79,25 @@ def wings_layer(width, height, cx, cy, size):
 
 
 def wordmark(lines, height):
-    """Renders lines of segments in fire-gradient lettering, trimmed and scaled to `height`."""
-    base = 240
-    fonts = {}
-
-    def font(scale):
-        size = round(base * scale)
-        if size not in fonts:
-            fonts[size] = ImageFont.truetype(str(WORDMARK_FONT), size)
-        return fonts[size]
+    """Renders lines of text in fire-gradient lettering, trimmed and scaled to `height`."""
+    base = 400
+    font = ImageFont.truetype(str(WORDMARK_FONT), base)
 
     layout = []
-    for line in lines:
-        x, top, bottom, segs = 0.0, 0, 0, []
-        for text, scale, rise in line:
-            f = font(scale)
-            _, t, _, b = f.getbbox(text, anchor="ls")
-            lift = rise * base
-            segs.append((x, text, f, lift))
-            top, bottom = min(top, t - lift), max(bottom, b - lift)
-            x += f.getlength(text)
-        layout.append((segs, x, top, bottom))
+    for text in lines:
+        left, top, right, bottom = font.getbbox(text, anchor="ls")
+        layout.append((text, left, right, top, bottom))
 
-    width = max(w for _, w, _, _ in layout)
-    gap = -base * 0.06
-    pad = base * 0.5
-    canvas_h = sum(b - t for _, _, t, b in layout) + gap * (len(layout) - 1) + 2 * pad
+    width = max(r - l for _, l, r, _, _ in layout)
+    gap = -base * 0.07
+    pad = base * 0.3
+    canvas_h = sum(b - t for *_, t, b in layout) + gap * (len(layout) - 1) + 2 * pad
     mask = Image.new("L", (round(width + 2 * pad), round(canvas_h)), 0)
     draw = ImageDraw.Draw(mask)
     y = pad
-    for segs, line_w, top, bottom in layout:
-        x0 = pad + (width - line_w) / 2
-        for x, text, f, lift in segs:
-            draw.text((x0 + x, y - top - lift), text, font=f, fill=255, anchor="ls")
+    for text, left, right, top, bottom in layout:
+        x = pad + (width - (right - left)) / 2 - left
+        draw.text((x, y - top), text, font=font, fill=255, anchor="ls")
         y += bottom - top + gap
 
     left, top, right, bottom = mask.getbbox()
@@ -125,7 +107,7 @@ def wordmark(lines, height):
         t = min(max((row - top) / (bottom - top), 0), 1)
         fd.line([(0, row), (mask.width, row)], fill=gradient_colour(FIRE, t))
 
-    edge = mask.filter(ImageFilter.MaxFilter(7))
+    edge = mask.filter(ImageFilter.MaxFilter(9))
     glow = edge.filter(ImageFilter.GaussianBlur(base * 0.06)).point(lambda v: v * 0.55)
     out = Image.new("RGBA", mask.size, (0, 0, 0, 0))
     out = Image.alpha_composite(out, solid((255, 120, 30), glow))
