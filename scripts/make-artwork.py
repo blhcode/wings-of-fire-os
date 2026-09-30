@@ -126,17 +126,17 @@ def spinner():
 
 
 def scene(width, height):
-    """The boot splash as a still: emblem and wordmark on black, low enough to clear GRUB's menu."""
+    """The boot splash as a still: emblem and wordmark on black, between GRUB's menu entries (top
+    quarter) and the bottom of its menu box (70% down at 640x480)."""
     img = Image.new("RGBA", (width, height), (0, 0, 0, 255))
-    size = round(height * 0.42)
+    size, cy = round(height * 0.30), height * 0.43
     glow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    ImageDraw.Draw(glow).ellipse([width / 2 - size * 0.6, height * 0.52 - size * 0.6,
-                                  width / 2 + size * 0.6, height * 0.52 + size * 0.6], fill=(40, 170, 255, 70))
+    ImageDraw.Draw(glow).ellipse([width / 2 - size * 0.6, cy - size * 0.6,
+                                  width / 2 + size * 0.6, cy + size * 0.6], fill=(40, 170, 255, 70))
     img = Image.alpha_composite(img, glow.filter(ImageFilter.GaussianBlur(size * 0.15)))
-    emblem = logo(size)
-    img.alpha_composite(emblem, (round((width - size) / 2), round(height * 0.52 - size / 2)))
-    mark = wordmark(WIDE, round(height * 0.075))
-    img.alpha_composite(mark, (round((width - mark.width) / 2), round(height * 0.79)))
+    img.alpha_composite(logo(size), (round((width - size) / 2), round(cy - size / 2)))
+    mark = wordmark(WIDE, round(height * 0.055))
+    img.alpha_composite(mark, (round((width - mark.width) / 2), round(cy + size / 2 + height * 0.025)))
     return img.convert("RGB")
 
 
