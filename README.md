@@ -34,8 +34,8 @@ make run-installed   # boot the installed system without the ISO
 make reset-vm        # wipe the virtual SSDs to start over
 ```
 
-On real hardware, check the disk picked on the installer's partitioning page: the existing
-Ubuntu drive is the 1.8 TB NVMe, the new SSDs are the ~128 GB ones.
+On real hardware, check the disk picked on the installer's partitioning page (compare the sizes
+with `lsblk`): everything on the chosen disk is erased.
 
 ## Tribes
 
