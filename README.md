@@ -62,9 +62,35 @@ Try the apps on this PC without building (uses a throwaway home in `build/try-ho
 ```sh
 make try-scroll
 make try-settings
+make try-map
 make preview      # build/preview/tribes.png: every tribe's icons, wallpaper and terminal colours
 make test
 ```
+
+## Map of the Dragon World
+
+**Map** (`wof-map`) shows Pyrrhia and Pantala, each as a flat map or in 3D.
+
+- **Flat map**: shaded relief, kingdoms and regions, rivers, lakes, Pantala's silk bridges, and every
+  landmark. Drag to move, scroll or pinch to zoom, and click a place to read about it. Names appear
+  as you zoom in. Right-drag measures a distance in miles and dragon flying time (about 240 miles a
+  day). The search box finds places on either continent. The layers menu turns categories on and
+  off and switches between your tribe's colours and an old-parchment style.
+- **3D**: Pyrrhia uses the full 3D map from
+  [pyrrhia-3d-map](https://github.com/blhcode/pyrrhia-3d-map). Pantala uses a lighter overview
+  viewer built from its heightmap, with Hive towers and silk bridges. **Show in 3D** on a place
+  flies there.
+
+Pyrrhia's coastline, kingdoms, rivers, landmarks, relief and heights are exported from the 3D map, so
+both views always agree. Pantala is traced from the coloured *Lost Continent* map plate: the
+coastline and lakes by colour, the rivers by following the plate's ink, and the Hives, lakes and
+landmarks placed on it. The Poison Jungle places are positioned after *A Guide to the Dragon World*.
+Its scale uses the same dragon-flight model: Cicada Hive to Wasp Hive is about two and a half days,
+which makes Pantala roughly 1,700 miles across. `make maps` regenerates everything in `desktop/maps/`
+(it needs node/npm); the results are committed, so an ordinary build doesn't need them.
+
+A continent is just a folder in `desktop/maps/<id>/` with `map.json`, `relief.png` and `height.png`
+(plus an optional `3d/` build), so more continents can be added the same way.
 
 ## Layout
 
@@ -74,6 +100,9 @@ make test
 | `desktop/tribes/` | One folder per tribe: `tribe.toml` + `wallpapers/` |
 | `desktop/lib/pyrrhia/` | Tribe engine: loading, theme/icon/sound generators, components, `wof-tribe` CLI, Pyrrhia Settings |
 | `desktop/lib/wofscroll/` | The Scroll text editor |
+| `desktop/lib/wofmap/` | The Map app (flat map, 3D view, search) |
+| `desktop/maps/` | Continent data: `pyrrhia/`, `pantala/`, Pyrrhia's 3D build and the shared 3D `viewer/` |
+| `scripts/import-maps.sh`, `scripts/map/` | Regenerate `desktop/maps` (Pyrrhia export, Pantala tracer, 3D viewer source) |
 | `desktop/bin`, `applications`, `autostart`, `libexec`, `polkit` | Launchers, menu entries, login-time theming, the login screen helper and its permission |
 | `tests/` | Unit tests (`make test`) |
 | `artwork/bootlogo.png` | Emblem on the boot loading screen (Plymouth theme in `overlay/usr/share/plymouth/themes/wingsoffire/`) |

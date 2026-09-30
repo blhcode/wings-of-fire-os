@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Map of the Dragon World
+GenericName=Map
+Comment=Explore Pyrrhia and Pantala, flat or in 3D
+Exec=wof-map
+Icon=wof-map
+Terminal=false
+Categories=Education;Geography;GTK;
+Keywords=map;pyrrhia;pantala;atlas;3d;kingdom;hive;
+StartupNotify=true

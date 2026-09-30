@@ -1,5 +1,5 @@
-.PHONY: deps build run run-uefi run-install run-installed reset-vm artwork assets test preview \
-	try-settings try-scroll clean distclean
+.PHONY: deps build run run-uefi run-install run-installed reset-vm artwork assets maps test preview \
+	try-settings try-scroll try-map clean distclean
 
 HOST_PACKAGES = debootstrap debian-archive-keyring squashfs-tools xorriso apt-utils \
 	grub-pc-bin grub-efi-amd64-bin mtools qemu-system-x86 qemu-utils ovmf python3-pil
@@ -43,9 +43,15 @@ artwork:
 assets:
 	rm -rf $(PREVIEW) && mkdir -p $(PREVIEW)
 	cp -r desktop/tribes $(PREVIEW)/tribes
+	ln -s ../../desktop/maps $(PREVIEW)/maps
 	. config/os.conf && echo $$DEFAULT_TRIBE > $(PREVIEW)/default-tribe
 	WOF_DATA=$(PREVIEW) PYTHONPATH=desktop/lib python3 -m pyrrhia.cli build-assets $(PREVIEW)/share \
 		--tribes-dir $(PREVIEW)/tribes
+
+# Re-export Pyrrhia from the 3D map, re-trace Pantala and rebuild the 3D viewers into desktop/maps.
+# Needs node/npm; the results are committed, so a normal build doesn't run this.
+maps:
+	./scripts/import-maps.sh
 
 test:
 	PYTHONPATH=desktop/lib python3 -m unittest discover -s tests -v
@@ -60,6 +66,9 @@ try-settings: assets
 
 try-scroll: assets
 	$(TRY_ENV) python3 -m wofscroll.app
+
+try-map: assets
+	$(TRY_ENV) python3 -m wofmap.app
 
 clean:
 	sudo ./build.sh --clean

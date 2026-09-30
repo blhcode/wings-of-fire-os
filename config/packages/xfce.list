@@ -29,3 +29,4 @@ librsvg2-common
 libcanberra-gtk3-module
 elementary-xfce-icon-theme
 fonts-ebgaramond
+gir1.2-webkit2-4.1

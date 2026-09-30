@@ -147,7 +147,7 @@ fi
 log "Applying overlay"
 cp -a --no-preserve=ownership overlay/. "$ROOTFS/"
 
-log "Installing the Wings of Fire desktop (tribes, Pyrrhia Settings, Scroll)"
+log "Installing the Wings of Fire desktop (tribes, Pyrrhia Settings, Scroll, Map)"
 TRIBE_DIR="desktop/tribes/$DEFAULT_TRIBE"
 [[ -f $TRIBE_DIR/tribe.toml ]] || die "DEFAULT_TRIBE not found: $TRIBE_DIR/tribe.toml"
 DEFAULT_WALLPAPER="$(sed -n 's/^default_wallpaper *= *"\([^"]*\)".*/\1/p' "$TRIBE_DIR/tribe.toml")"
@@ -155,7 +155,9 @@ DEFAULT_WALLPAPER="$(sed -n 's/^default_wallpaper *= *"\([^"]*\)".*/\1/p' "$TRIB
   || die "$DEFAULT_TRIBE's default_wallpaper not found: $TRIBE_DIR/wallpapers/$DEFAULT_WALLPAPER"
 DATA="$ROOTFS/usr/share/$OS_ID"
 install -d "$DATA"
-cp -r --no-preserve=ownership desktop/lib desktop/tribes "$DATA/"
+[[ -f desktop/maps/pyrrhia/map.json && -f desktop/maps/viewer/viewer.js ]] \
+  || die "desktop/maps is incomplete; run scripts/import-maps.sh"
+cp -r --no-preserve=ownership desktop/lib desktop/tribes desktop/maps "$DATA/"
 find "$DATA/lib" -name __pycache__ -prune -exec rm -rf {} +
 echo "$DEFAULT_TRIBE" > "$DATA/default-tribe"
 install -m 755 desktop/bin/* "$ROOTFS/usr/bin/"

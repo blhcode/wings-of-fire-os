@@ -176,6 +176,26 @@ def settings_icon(p):
         f'stroke="{c.darken(p["accent"], 0.35)}" stroke-width="2" stroke-linecap="round"/>', defs)
 
 
+def map_icon(p):
+    """A folded parchment map with a dragon-shaped continent and a dashed flight path."""
+    defs = _grad("sheet", "#fbf1d6", "#e3c98f")
+    land = c.mix(p["accent"], "#6f8f3a", 0.35)
+    body = (
+        '<path d="M6 12 L22 7 L42 12 L58 7 V52 L42 57 L22 52 L6 57 Z" fill="url(#sheet)" '
+        'stroke="#a8864c" stroke-width="1.2" stroke-linejoin="round"/>'
+        '<path d="M22 7 V52 M42 12 V57" stroke="#b89a5e" stroke-width="1" opacity="0.8"/>'
+        '<path d="M22 7 L42 12 V57 L22 52 Z" fill="#000" opacity="0.07"/>'
+        f'<path d="M12 22 C16 16 26 15 30 19 C34 14 44 13 50 18 C46 20 42 22 44 26 C50 27 53 33 49 38 '
+        f'C45 42 38 40 36 44 C33 49 26 49 22 45 C17 46 12 42 14 37 C10 33 11 27 15 26 C12 25 11 24 12 22 Z" '
+        f'fill="{land}" stroke="{c.darken(land, 0.35)}" stroke-width="1"/>'
+        '<path d="M18 30 C24 26 30 34 36 29 S46 26 47 33" fill="none" stroke="#2e1f12" '
+        'stroke-width="1.8" stroke-dasharray="3 2.4" stroke-linecap="round"/>'
+        f'<circle cx="47" cy="33" r="2.8" fill="{p["seal"]}" stroke="#2e1f12" stroke-width="1.2"/>'
+        f'<path d="M50 44 L52 48 L50 52 L48 48 Z" fill="{p["accent_alt"]}" stroke="#5a4127" stroke-width="0.6"/>'
+    )
+    return _svg(body, defs)
+
+
 def write_icon(theme_dir, context, names, svg_text):
     folder_ = Path(theme_dir) / "scalable" / context
     folder_.mkdir(parents=True, exist_ok=True)
@@ -246,6 +266,7 @@ def write(tribe, theme_dir):
 def _write_apps(theme_dir, p):
     write_icon(theme_dir, "apps", ("wof-scroll", "accessories-text-editor", "org.xfce.mousepad"), scroll(p, "seal"))
     write_icon(theme_dir, "apps", ("pyrrhia-settings",), settings_icon(p))
+    write_icon(theme_dir, "apps", ("wof-map",), map_icon(p))
 
 
 def write_app_icons(hicolor_dir):
@@ -253,3 +274,4 @@ def write_app_icons(hicolor_dir):
     hicolor_dir = Path(hicolor_dir)
     write_icon(hicolor_dir, "apps", ("wof-scroll",), scroll(FIRE, "seal"))
     write_icon(hicolor_dir, "apps", ("pyrrhia-settings",), settings_icon(FIRE))
+    write_icon(hicolor_dir, "apps", ("wof-map",), map_icon(FIRE))
