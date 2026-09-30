@@ -48,6 +48,7 @@ assets:
 	rm -rf $(PREVIEW) && mkdir -p $(PREVIEW)
 	cp -r desktop/tribes $(PREVIEW)/tribes
 	ln -s ../../desktop/maps $(PREVIEW)/maps
+	python3 scripts/make-artwork.py $(PREVIEW)/artwork
 	. config/os.conf && echo $$DEFAULT_TRIBE > $(PREVIEW)/default-tribe
 	WOF_DATA=$(PREVIEW) PYTHONPATH=desktop/lib python3 -m pyrrhia.cli build-assets $(PREVIEW)/share \
 		--tribes-dir $(PREVIEW)/tribes

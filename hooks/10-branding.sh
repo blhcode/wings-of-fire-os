@@ -12,6 +12,7 @@ VERSION_ID="$OS_VERSION"
 ID=$OS_ID
 ID_LIKE=debian
 VERSION_CODENAME=$DEBIAN_SUITE
+LOGO=wingsoffire-logo
 EOF
 ln -sf ../usr/lib/os-release /etc/os-release
 
@@ -24,3 +25,14 @@ cat > /etc/motd <<EOF
    Built on Debian $DEBIAN_SUITE.
 
 EOF
+
+# The emblem (artwork/logo.png) as the login screen's picture for users without their own, and the
+# boot menu background of installed systems (the live ISO's menu gets it from build.sh).
+ART="/usr/share/$OS_ID/artwork"
+if [ -d /etc/lightdm ]; then
+  mkdir -p /etc/lightdm/lightdm-gtk-greeter.conf.d
+  printf '[greeter]\ndefault-user-image=%s\n' "$ART/logo.png" \
+    > /etc/lightdm/lightdm-gtk-greeter.conf.d/40-wingsoffire-logo.conf
+fi
+mkdir -p /etc/default/grub.d
+printf 'GRUB_BACKGROUND="%s"\n' "$ART/grub.png" > /etc/default/grub.d/wingsoffire.cfg

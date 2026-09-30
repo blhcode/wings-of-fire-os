@@ -1,15 +1,20 @@
 """Tribe icon themes: folders, scroll-shaped text files, framed images, config tablets and the
 Wings of Fire OS app icons. Everything else is inherited from the base icon theme, so file
 associations and behaviour don't change - only the pictures do."""
+import base64
 import textwrap
 from pathlib import Path
 
 from .. import colors as c
-from .. import patterns
+from .. import paths, patterns
 from . import palette
 
 FIRE = {"accent": "#e8541e", "accent_alt": "#f7b733", "seal": "#b3261e"}
 
+# The emblem replaces Debian's and XFCE's logos: the panel's Applications button, "start here" and
+# "distributor logo" (About dialogs, system info tools).
+LOGO_NAMES = ("wingsoffire-logo", "distributor-logo", "start-here", "org.xfce.panel.applicationsmenu",
+              "xfce4-panel-menu", "debian-logo")
 FOLDER_NAMES = ("folder", "inode-directory", "folder-remote", "network-workgroup")
 OPEN_FOLDER_NAMES = ("folder-open", "folder-drag-accept")
 SPECIAL_FOLDERS = {
@@ -196,6 +201,16 @@ def map_icon(p):
     return _svg(body, defs)
 
 
+def logo_icon():
+    """The OS emblem (artwork/logo.png, drawn by scripts/make-artwork.py) as a scalable icon, or None
+    if the artwork hasn't been drawn."""
+    path = paths.ARTWORK / "logo.png"
+    if not path.is_file():
+        return None
+    data = base64.b64encode(path.read_bytes()).decode()
+    return _svg(f'<image width="64" height="64" href="data:image/png;base64,{data}"/>')
+
+
 def write_icon(theme_dir, context, names, svg_text):
     folder_ = Path(theme_dir) / "scalable" / context
     folder_.mkdir(parents=True, exist_ok=True)
@@ -267,6 +282,9 @@ def _write_apps(theme_dir, p):
     write_icon(theme_dir, "apps", ("wof-scroll", "accessories-text-editor", "org.xfce.mousepad"), scroll(p, "seal"))
     write_icon(theme_dir, "apps", ("pyrrhia-settings",), settings_icon(p))
     write_icon(theme_dir, "apps", ("wof-map",), map_icon(p))
+    logo = logo_icon()
+    if logo:
+        write_icon(theme_dir, "apps", LOGO_NAMES, logo)
 
 
 def write_app_icons(hicolor_dir):
@@ -275,3 +293,6 @@ def write_app_icons(hicolor_dir):
     write_icon(hicolor_dir, "apps", ("wof-scroll",), scroll(FIRE, "seal"))
     write_icon(hicolor_dir, "apps", ("pyrrhia-settings",), settings_icon(FIRE))
     write_icon(hicolor_dir, "apps", ("wof-map",), map_icon(FIRE))
+    logo = logo_icon()
+    if logo:
+        write_icon(hicolor_dir, "apps", ("wingsoffire-logo",), logo)

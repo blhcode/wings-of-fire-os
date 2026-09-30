@@ -3,8 +3,8 @@
 
 Usage: make-artwork.py OUT_DIR [WALLPAPER]
 Writes into OUT_DIR:
-  grub.png           1024x768   boot menu background
-  logo.png           256x256    transparent logo (installer, launcher icon)
+  grub.png           1024x768   boot menu background: the emblem and wordmark, like the boot splash
+  logo.png           256x256    the emblem from artwork/bootlogo.png, cropped to its circle (the OS logo)
   welcome.png        457x300    installer welcome banner
   slide.png          800x480    installer slideshow
   wordmark.png       stacked "Wings / of / Fire / OS" in the book-cover lettering style
@@ -21,8 +21,6 @@ from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageFont
 ARTWORK = Path(__file__).resolve().parent.parent / "artwork"
 WORDMARK_FONT = ARTWORK / "fonts/WingsOfFireTitle.otf"
 
-SKY = [(0.0, (10, 3, 8)), (0.55, (70, 8, 12)), (1.0, (215, 80, 18))]
-FEATHERS = [(255, 220, 90), (255, 170, 40), (245, 110, 25), (215, 55, 20), (160, 25, 20)]
 # Top-to-bottom colour of the Wings of Fire title: dark red, through orange, to gold and back.
 FIRE = [(0.0, (130, 14, 18)), (0.28, (212, 40, 28)), (0.45, (242, 112, 30)),
         (0.55, (255, 190, 64)), (0.68, (242, 112, 30)), (0.85, (212, 40, 28)), (1.0, (150, 18, 20))]
@@ -48,34 +46,6 @@ def gradient_colour(stops, t):
         if t <= t1:
             return lerp(c0, c1, (t - t0) / (t1 - t0))
     return stops[-1][1]
-
-
-def draw_wing(draw, cx, cy, size, side):
-    """Fan of feathers sweeping up and outward from (cx, cy); side is 1 (right) or -1 (left)."""
-    count = 9
-    for i in range(count):
-        angle = math.radians(12 + i * 8)
-        length = size * (1.0 - i * 0.07)
-        tip = (cx + side * length * math.cos(angle), cy - length * math.sin(angle))
-        spread = size * 0.07
-        base_a = (cx + side * spread * math.sin(angle), cy + spread * math.cos(angle))
-        base_b = (cx - side * spread * math.sin(angle), cy - spread * math.cos(angle))
-        mid = (cx + side * length * 0.55 * math.cos(angle - 0.08),
-               cy - length * 0.55 * math.sin(angle - 0.08) + size * 0.06)
-        colour = FEATHERS[min(i * len(FEATHERS) // count, len(FEATHERS) - 1)]
-        draw.polygon([base_a, mid, tip, base_b], fill=colour + (235,))
-
-
-def wings_layer(width, height, cx, cy, size):
-    """Transparent layer with both wings, the body and a soft glow behind them."""
-    wings = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    wd = ImageDraw.Draw(wings)
-    for side in (1, -1):
-        draw_wing(wd, cx + side * size * 0.04, cy, size, side)
-    wd.ellipse([cx - size * 0.05, cy - size * 0.12, cx + size * 0.05, cy + size * 0.1],
-               fill=(255, 235, 150, 255))
-    glow = wings.filter(ImageFilter.GaussianBlur(size * 0.08))
-    return Image.alpha_composite(glow, wings)
 
 
 def wordmark(lines, height):
@@ -156,19 +126,26 @@ def spinner():
 
 
 def scene(width, height):
-    img = Image.new("RGBA", (width, height))
-    sky = ImageDraw.Draw(img)
-    for y in range(height):
-        sky.line([(0, y), (width, y)], fill=gradient_colour(SKY, y / (height - 1)))
-    img = Image.alpha_composite(
-        img, wings_layer(width, height, width / 2, height * 0.46, min(width, height) * 0.38))
-    mark = wordmark(WIDE, round(height * 0.09))
-    img.alpha_composite(mark, (round((width - mark.width) / 2), round(height * 0.6)))
+    """The boot splash as a still: emblem and wordmark on black, low enough to clear GRUB's menu."""
+    img = Image.new("RGBA", (width, height), (0, 0, 0, 255))
+    size = round(height * 0.42)
+    glow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse([width / 2 - size * 0.6, height * 0.52 - size * 0.6,
+                                  width / 2 + size * 0.6, height * 0.52 + size * 0.6], fill=(40, 170, 255, 70))
+    img = Image.alpha_composite(img, glow.filter(ImageFilter.GaussianBlur(size * 0.15)))
+    emblem = logo(size)
+    img.alpha_composite(emblem, (round((width - size) / 2), round(height * 0.52 - size / 2)))
+    mark = wordmark(WIDE, round(height * 0.075))
+    img.alpha_composite(mark, (round((width - mark.width) / 2), round(height * 0.79)))
     return img.convert("RGB")
 
 
 def logo(size):
-    return wings_layer(size, size, size / 2, size * 0.6, size * 0.42)
+    """The boot splash emblem, cropped to its circle."""
+    emblem = Image.open(ARTWORK / "bootlogo.png").convert("RGBA")
+    (cx, cy), r = EMBLEM_CENTRE, EMBLEM_RADIUS + 6
+    box = (round(cx - r), round(cy - r), round(cx + r), round(cy + r))
+    return emblem.crop(box).resize((size, size), Image.LANCZOS)
 
 
 def main():

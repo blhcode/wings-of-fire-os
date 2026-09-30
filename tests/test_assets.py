@@ -59,6 +59,20 @@ class AssetTests(unittest.TestCase):
         for tribe in self.tribes:
             self.assertEqual(len(terminal.colours(tribe)["color-palette"].split(";")), 16)
 
+    def test_emblem_replaces_the_system_logos(self):
+        import subprocess
+        from unittest import mock
+        from pyrrhia import paths
+        from pyrrhia.assets import icons
+        art = self.tmp / "artwork"
+        subprocess.run(["python3", str(REPO / "scripts/make-artwork.py"), str(art)], check=True)
+        with mock.patch.object(paths, "ARTWORK", art):
+            icons.write(self.tribes[0], self.tmp / "logo-theme")
+        apps = self.tmp / "logo-theme/scalable/apps"
+        for name in icons.LOGO_NAMES:
+            ET.parse(apps / f"{name}.svg")
+        self.assertIn("data:image/png;base64,", (apps / "start-here.svg").read_text())
+
     def test_gtk_css_loads(self):
         try:
             import gi
