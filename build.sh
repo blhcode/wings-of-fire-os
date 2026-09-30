@@ -205,6 +205,7 @@ mksquashfs "$ROOTFS" "$ISO_DIR/live/filesystem.squashfs" -noappend -comp xz -b 1
 
 log "Creating bootable ISO"
 LIVE_ARGS="live-config.hostname=$OS_HOSTNAME live-config.username=$LIVE_USERNAME"
+LIVE_ARGS+=" live-config.user-fullname=${LIVE_USERNAME^}"
 LIVE_ARGS+=" live-config.locales=$LOCALE live-config.timezone=$TIMEZONE"
 LIVE_ARGS+=" live-config.keyboard-layouts=$KEYBOARD_LAYOUT"
 sed -e "s|@OS_NAME@|$OS_NAME|g" -e "s|@OS_VERSION@|$OS_VERSION|g" -e "s|@LIVE_ARGS@|$LIVE_ARGS|g" \

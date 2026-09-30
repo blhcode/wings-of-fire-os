@@ -1,0 +1,16 @@
+#!/bin/sh
+# In a virtual machine, keeps the desktop the size of the VM window: whenever the virtual screen's
+# preferred mode (which QEMU sets from its window size) isn't the one in use, switch to it.
+# Does nothing on real hardware.
+systemd-detect-virt --vm --quiet || exit 0
+command -v xrandr >/dev/null || exit 0
+
+while :; do
+  xrandr --current | awk '
+    /^[^ ]/ { out = ($2 == "connected") ? $1 : "" }
+    out != "" && /^ +[0-9]+x[0-9]+/ && /\+/ && !/\*/ { print out }
+  ' | while read -r output; do
+    xrandr --output "$output" --auto
+  done
+  sleep 2
+done

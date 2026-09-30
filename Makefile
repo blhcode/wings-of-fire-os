@@ -1,4 +1,4 @@
-.PHONY: deps build run run-uefi run-install run-installed reset-vm artwork assets maps test preview \
+.PHONY: deps build build-docker run run-uefi run-install run-installed reset-vm artwork assets maps test preview \
 	try-settings try-scroll try-map clean distclean
 
 HOST_PACKAGES = debootstrap debian-archive-keyring squashfs-tools xorriso apt-utils \
@@ -15,6 +15,10 @@ deps:
 
 build:
 	sudo ./build.sh
+
+# Same build inside a Debian container: no host build tools or sudo needed, just Docker.
+build-docker:
+	./scripts/build-in-docker.sh
 
 # Try the live system.
 run:

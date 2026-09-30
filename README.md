@@ -15,6 +15,9 @@ make build   # builds out/wingsoffire-0.1-amd64.iso (first build ~15-30 min, mos
 make run     # boot the ISO in QEMU (BIOS); `make run-uefi` for UEFI
 ```
 
+No sudo? If you're in the `docker` group, `make build-docker` runs the same build inside a Debian
+container, with no build tools needed on the host.
+
 The live session logs in automatically as `dragon` (password `live`).
 
 ## Installing

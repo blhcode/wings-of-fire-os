@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Fit the desktop to the VM window
+Comment=Resizes the desktop with the virtual machine's window (only runs inside a VM)
+Exec=wof-vm-display
+OnlyShowIn=XFCE;
+NoDisplay=true

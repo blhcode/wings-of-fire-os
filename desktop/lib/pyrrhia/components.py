@@ -26,11 +26,16 @@ class Component:
 def wallpaper(tribe, wall):
     if wall is None:
         return "no wallpaper for this tribe"
-    props = [p for p in system.xfconf_list("xfce4-desktop") if p.endswith("/last-image")]
-    if not props:
-        monitors = system.monitor_names() or ["0"]
-        props = [f"/backdrop/screen0/monitor{m}/workspace{w}/last-image" for m in monitors for w in range(4)]
-    for prop in props:
+    # xfdesktop only reads monitor<connector>/workspace<n>; Debian's defaults also leave old-style
+    # monitor0/monitor1 keys, which are set too but aren't enough on their own.
+    props = {p for p in system.xfconf_list("xfce4-desktop") if p.endswith("/last-image")}
+    try:
+        workspaces = int(system.xfconf_get("xfwm4", "/general/workspace_count", "4"))
+    except ValueError:
+        workspaces = 4
+    monitors = system.monitor_names() or ([] if props else ["0"])
+    props |= {f"/backdrop/screen0/monitor{m}/workspace{w}/last-image" for m in monitors for w in range(workspaces)}
+    for prop in sorted(props):
         system.xfconf_set("xfce4-desktop", prop, str(wall))
         system.xfconf_set("xfce4-desktop", prop.replace("/last-image", "/image-style"), 5)
     return f"{Path(wall).name} on {len(props)} desktop(s)"

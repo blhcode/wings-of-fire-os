@@ -49,3 +49,5 @@ EOF
 
 sed -i "s|Install Debian|Install $OS_NAME|; s|Installer for Debian Live|Installer for $OS_NAME|" \
   /usr/share/applications/calamares-install-debian.desktop /usr/bin/add-calamares-desktop-icon
+# Debian's script ends in a broken preload loop ("): do", "ionice -C") that errors at every login.
+sed -i -e 's/ionice -C Idle/ionice -c 3/' -e "s/}'): do\$/}'); do/" /usr/bin/add-calamares-desktop-icon
