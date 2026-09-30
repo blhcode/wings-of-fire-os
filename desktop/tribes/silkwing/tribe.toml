@@ -3,7 +3,7 @@ realm = "Pantala"
 description = "Butterfly-winged dragons of Pantala who spin silk, some of them flamesilk."
 dark = false
 pattern = "silk"
-default_wallpaper = ""
+default_wallpaper = "blue-lost-continent.jpg"
 
 [colors]
 accent = "#9b4fe0"

@@ -3,7 +3,7 @@ realm = "Pantala"
 description = "Green forest dragons of Pantala with leaf-shaped wings, some gifted with leafspeak."
 dark = true
 pattern = "leaves"
-default_wallpaper = ""
+default_wallpaper = "sundew-poison-jungle.jpg"
 
 [colors]
 accent = "#5bb043"

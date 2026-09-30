@@ -3,7 +3,7 @@ realm = "Pyrrhia"
 description = "Secretive purple-black dragons with silver scales scattered like stars under their wings."
 dark = true
 pattern = "stars"
-default_wallpaper = ""
+default_wallpaper = "starflight-dark-secret.jpg"
 
 [colors]
 accent = "#9b6bff"

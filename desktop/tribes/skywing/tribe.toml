@@ -3,7 +3,7 @@ realm = "Pyrrhia"
 description = "Fierce fliers of the Sky Kingdom's mountain peaks, scaled in red and orange like the setting sun."
 dark = true
 pattern = "embers"
-default_wallpaper = ""
+default_wallpaper = "peril-escaping-peril.jpg"
 
 [colors]
 accent = "#e0452b"

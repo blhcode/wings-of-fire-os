@@ -48,6 +48,24 @@ generated from `tribe.toml` when the ISO is built. Tribes without a wallpaper ge
 placeholder until one is added. Users can add their own wallpapers (or whole tribes) under
 `~/.local/share/wingsoffire/tribes/<id>/`, which the settings app's **Add wallpapers…** does for them.
 
+Each tribe's wallpaper is Joy Ang's cover art for the book told by a dragon of that tribe, cropped
+to 16:9 from the full wraparound covers on the [Wings of Fire Wiki](https://wingsoffire.fandom.com/):
+
+| Tribe | Wallpaper | Book |
+| --- | --- | --- |
+| SeaWing | Turtle | *Talons of Power* |
+| SandWing | Sunny | *The Brightest Night* |
+| RainWing | Glory | *The Hidden Kingdom* |
+| MudWing | Clay | *The Dragonet Prophecy* |
+| NightWing | Starflight, Moonwatcher | *The Dark Secret*, *Moon Rising* |
+| IceWing | Winter | *Winter Turning* |
+| SkyWing | Peril | *Escaping Peril* |
+| SilkWing | Blue | *The Lost Continent* |
+| HiveWing | Cricket | *The Hive Queen* |
+| LeafWing | Sundew | *The Poison Jungle* |
+
+The artwork belongs to Scholastic; it's included for a personal fan build, not for redistribution.
+
 Firefox theming only touches files it owns (`chrome/wof-tribe*.css`, one `@import` line, one marked
 block in `user.js`), keeps everything else, and is removed completely when switched off.
 

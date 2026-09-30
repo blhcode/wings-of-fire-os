@@ -3,7 +3,7 @@ realm = "Pyrrhia"
 description = "Big, loyal brown dragons of the marshy Mud Kingdom, raised in sibling troops."
 dark = true
 pattern = "mud"
-default_wallpaper = ""
+default_wallpaper = "clay-dragonet-prophecy.jpg"
 
 [colors]
 accent = "#c0803f"

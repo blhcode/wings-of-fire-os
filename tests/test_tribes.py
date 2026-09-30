@@ -43,6 +43,11 @@ class TribeTests(unittest.TestCase):
         self.assertEqual(self.tribes.get("rainwing").wallpaper().name, "glory.png")
         self.assertEqual(self.tribes.get("sandwing").wallpaper().name, "sunny.png")
 
+    def test_every_tribe_ships_its_default_wallpaper(self):
+        for tribe in self.tribes.all_tribes().values():
+            self.assertTrue(tribe.has_own_wallpaper(), tribe.id)
+            self.assertEqual(tribe.wallpaper().name, tribe.default_wallpaper, tribe.id)
+
     def test_user_can_add_wallpapers_to_a_system_tribe(self):
         extra = self.home / ".local/share/wingsoffire/tribes/icewing/wallpapers"
         extra.mkdir(parents=True)

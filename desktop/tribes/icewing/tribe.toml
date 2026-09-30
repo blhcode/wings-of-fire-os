@@ -3,7 +3,7 @@ realm = "Pyrrhia"
 description = "Silver-white dragons of the Ice Kingdom who breathe freezing frostbreath."
 dark = false
 pattern = "frost"
-default_wallpaper = ""
+default_wallpaper = "winter-turning.jpg"
 
 [colors]
 accent = "#2f8fc9"
