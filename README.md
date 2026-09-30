@@ -3,6 +3,9 @@
 A fan-made OS themed around Tui T. Sutherland's *Wings of Fire* book series. Not affiliated
 with the author or Scholastic.
 
+**[⬇ Download Wings of Fire OS 0.1 (ISO, 1.3 GB)](https://github.com/blhcode/wings-of-fire-os/releases/latest)**:
+write it to a USB stick and boot a PC from it. See [Putting it on a USB stick](#putting-it-on-a-usb-stick).
+
 A Debian-based Linux distribution with its own branding, package selection and live ISO.
 It uses Debian's kernel and packages, and builds the system image itself with `debootstrap`
 (no live-build or remastering of an existing ISO).
