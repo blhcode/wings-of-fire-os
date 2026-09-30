@@ -38,13 +38,19 @@ def tribe_sound(tribe, event):
 
 
 def session_start():
-    """Run at login. First login: apply the default tribe. Later: re-apply the cheap components so
-    new monitors and newly created Firefox profiles pick up the theme."""
+    """Run at login. First login: apply the default tribe. Later: theme what's new since last time
+    (monitors, workspaces, Firefox profiles) without undoing changes made in XFCE's own settings."""
     first = not state_mod.exists()
     state = state_mod.load()
     if first:
         state_mod.save(state)
-        only = [c.id for c in components.COMPONENTS if c.session]
-    else:
-        only = ["wallpaper", "firefox"]
-    return apply(state, only=only, chime=False)
+        return apply(state, only=[c.id for c in components.COMPONENTS if c.session], chime=False)
+    tribe, results = apply(state, only=["firefox"], chime=False)
+    if state.enabled("wallpaper"):
+        comp = components.BY_ID["wallpaper"]
+        try:
+            results.insert(0, (comp, True, components.wallpaper_new_screens(
+                tribe, tribe.wallpaper(state.wallpaper or None))))
+        except (system.CommandError, OSError) as err:
+            results.insert(0, (comp, False, str(err)))
+    return tribe, results

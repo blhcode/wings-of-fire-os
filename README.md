@@ -39,10 +39,12 @@ Ubuntu drive is the 1.8 TB NVMe, the new SSDs are the ~128 GB ones.
 
 ## Tribes
 
-Every user picks a dragon tribe in **Pyrrhia Settings** (Settings menu, or `pyrrhia-settings`).
-The tribe sets the wallpaper, window/panel/notification colours, file and folder icons (text files
+Every user picks a dragon tribe in **Pyrrhia Settings**, which opens by itself on first login and
+lives in the dock and the Settings menu afterwards. Clicking a tribe switches everything at once:
+the wallpaper, window/panel/notification colours, file and folder icons (text files
 are scrolls), terminal colours, Firefox's toolbar and new tab page, the Scroll editor's wax seal and
-Mousepad's colours, system sounds and the login screen. Each part can be switched off. The same is
+Mousepad's colours, system sounds and the login screen. Each part can be switched off. Every tribe's
+wallpapers are also in XFCE's own Desktop settings (folder `wingsoffire`). The same is
 available from a terminal: `wof-tribe list`, `wof-tribe apply nightwing`, `wof-tribe set firefox off`.
 
 A tribe is a folder in `desktop/tribes/<id>/`: a `tribe.toml` (name, colours, pattern, sounds, seal

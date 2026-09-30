@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Choose your tribe
+Comment=Opens Pyrrhia Settings on your first login
+Exec=pyrrhia-settings --welcome
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-XFCE-Autostart-Override=true

@@ -7,6 +7,8 @@ DATA_DIR = Path(os.environ.get("WOF_DATA", "/usr/share/wingsoffire"))
 SYSTEM_TRIBES = DATA_DIR / "tribes"
 ARTWORK = DATA_DIR / "artwork"
 DEFAULT_TRIBE_FILE = DATA_DIR / "default-tribe"
+# Every system tribe's wallpapers linked into one folder (/usr/share/backgrounds/wingsoffire).
+BACKGROUNDS = DATA_DIR.parent / "backgrounds" / DATA_DIR.name
 
 
 def home():

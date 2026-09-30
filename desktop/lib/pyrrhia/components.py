@@ -23,22 +23,53 @@ class Component:
     session: bool = True  # re-applied at every login (cheap, keeps new monitors/profiles themed)
 
 
-def wallpaper(tribe, wall):
-    if wall is None:
-        return "no wallpaper for this tribe"
-    # xfdesktop only reads monitor<connector>/workspace<n>; Debian's defaults also leave old-style
-    # monitor0/monitor1 keys, which are set too but aren't enough on their own.
-    props = {p for p in system.xfconf_list("xfce4-desktop") if p.endswith("/last-image")}
+def _backdrop_props():
+    """(already set, every screen and workspace now) last-image keys. xfdesktop only reads
+    monitor<connector>/workspace<n>; Debian's defaults also leave old-style monitor0/monitor1 keys."""
+    existing = {p for p in system.xfconf_list("xfce4-desktop") if p.endswith("/last-image")}
     try:
         workspaces = int(system.xfconf_get("xfwm4", "/general/workspace_count", "4"))
     except ValueError:
         workspaces = 4
-    monitors = system.monitor_names() or ([] if props else ["0"])
-    props |= {f"/backdrop/screen0/monitor{m}/workspace{w}/last-image" for m in monitors for w in range(workspaces)}
+    monitors = system.monitor_names() or ([] if existing else ["0"])
+    current = {f"/backdrop/screen0/monitor{m}/workspace{w}/last-image" for m in monitors for w in range(workspaces)}
+    return existing, current
+
+
+def shown_path(tribe, wall):
+    """The path handed to xfdesktop. System wallpapers go through /usr/share/backgrounds/wingsoffire,
+    which links every tribe's wallpapers into one folder, so XFCE's own Desktop settings list them all."""
+    link = paths.BACKGROUNDS / f"{tribe.id}-{Path(wall).name}"
+    try:
+        if link.resolve() == Path(wall).resolve():
+            return link
+    except OSError:
+        pass
+    return Path(wall)
+
+
+def _set_backdrop(props, tribe, wall):
     for prop in sorted(props):
-        system.xfconf_set("xfce4-desktop", prop, str(wall))
+        system.xfconf_set("xfce4-desktop", prop, str(shown_path(tribe, wall)))
         system.xfconf_set("xfce4-desktop", prop.replace("/last-image", "/image-style"), 5)
-    return f"{Path(wall).name} on {len(props)} desktop(s)"
+
+
+def wallpaper(tribe, wall):
+    if wall is None:
+        return "no wallpaper for this tribe"
+    existing, current = _backdrop_props()
+    _set_backdrop(existing | current, tribe, wall)
+    return f"{Path(wall).name} on {len(existing | current)} desktop(s)"
+
+
+def wallpaper_new_screens(tribe, wall):
+    """At login: give the tribe wallpaper only to screens and workspaces that have none yet, so a
+    wallpaper picked in XFCE's own settings survives logging out."""
+    if wall is None:
+        return "no wallpaper for this tribe"
+    existing, current = _backdrop_props()
+    _set_backdrop(current - existing, tribe, wall)
+    return f"{len(current - existing)} new desktop(s)"
 
 
 def colours(tribe, wall):
