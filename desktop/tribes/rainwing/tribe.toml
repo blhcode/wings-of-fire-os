@@ -1,0 +1,20 @@
+name = "RainWing"
+realm = "Pyrrhia"
+description = "Colour-shifting rainforest dragons who can camouflage their scales and spit venom."
+dark = true
+pattern = "rain"
+default_wallpaper = "glory.png"
+
+[colors]
+accent = "#22c46b"
+accent_alt = "#ff6fb1"
+background = "#06180f"
+surface = "#0e2a1c"
+text = "#e8fbef"
+
+[editor]
+seal = "#1e9e5a"
+
+[sounds]
+voice = "rain"
+root = 659.25

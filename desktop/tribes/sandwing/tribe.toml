@@ -1,0 +1,20 @@
+name = "SandWing"
+realm = "Pyrrhia"
+description = "Pale gold desert dragons of the Kingdom of Sand, with venomous barbed tails."
+dark = false
+pattern = "dunes"
+default_wallpaper = "sunny.png"
+
+[colors]
+accent = "#c77a12"
+accent_alt = "#f2c46b"
+background = "#f4e8cf"
+surface = "#fbf4e4"
+text = "#3a2a12"
+
+[editor]
+seal = "#b8741a"
+
+[sounds]
+voice = "pluck"
+root = 392.0

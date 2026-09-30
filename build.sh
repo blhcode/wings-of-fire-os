@@ -146,10 +146,27 @@ fi
 
 log "Applying overlay"
 cp -a --no-preserve=ownership overlay/. "$ROOTFS/"
-[[ -f artwork/wallpapers/$DEFAULT_WALLPAPER ]] || die "DEFAULT_WALLPAPER not found: artwork/wallpapers/$DEFAULT_WALLPAPER"
-install -d "$ROOTFS/usr/share/backgrounds/$OS_ID"
-install -m 644 artwork/wallpapers/* "$ROOTFS/usr/share/backgrounds/$OS_ID/"
-python3 scripts/make-artwork.py "$WORK/art" "artwork/wallpapers/$DEFAULT_WALLPAPER" \
+
+log "Installing the Wings of Fire desktop (tribes, Pyrrhia Settings, Scroll)"
+TRIBE_DIR="desktop/tribes/$DEFAULT_TRIBE"
+[[ -f $TRIBE_DIR/tribe.toml ]] || die "DEFAULT_TRIBE not found: $TRIBE_DIR/tribe.toml"
+DEFAULT_WALLPAPER="$(sed -n 's/^default_wallpaper *= *"\([^"]*\)".*/\1/p' "$TRIBE_DIR/tribe.toml")"
+[[ -f $TRIBE_DIR/wallpapers/$DEFAULT_WALLPAPER ]] \
+  || die "$DEFAULT_TRIBE's default_wallpaper not found: $TRIBE_DIR/wallpapers/$DEFAULT_WALLPAPER"
+DATA="$ROOTFS/usr/share/$OS_ID"
+install -d "$DATA"
+cp -r --no-preserve=ownership desktop/lib desktop/tribes "$DATA/"
+find "$DATA/lib" -name __pycache__ -prune -exec rm -rf {} +
+echo "$DEFAULT_TRIBE" > "$DATA/default-tribe"
+install -m 755 desktop/bin/* "$ROOTFS/usr/bin/"
+install -D -m 755 desktop/libexec/wof-login-theme "$ROOTFS/usr/libexec/$OS_ID/wof-login-theme"
+install -D -m 644 desktop/polkit/*.policy -t "$ROOTFS/usr/share/polkit-1/actions/"
+install -D -m 644 desktop/applications/*.desktop -t "$ROOTFS/usr/share/applications/"
+install -D -m 644 desktop/autostart/*.desktop -t "$ROOTFS/etc/xdg/autostart/"
+install -D -m 644 desktop/mimeapps.list "$ROOTFS/etc/xdg/mimeapps.list"
+install -D -m 644 artwork/fonts/WingsOfFireTitle.otf -t "$ROOTFS/usr/share/fonts/opentype/$OS_ID/"
+
+python3 scripts/make-artwork.py "$WORK/art" "$TRIBE_DIR/wallpapers/$DEFAULT_WALLPAPER" \
   || die "could not draw artwork (is python3-pil installed? run 'make deps')"
 install -D -m 644 "$WORK"/art/*.png -t "$ROOTFS/usr/share/$OS_ID/artwork/"
 install -D -m 644 "$WORK/art/grub.png" "$ISO_DIR/boot/grub/background.png"
@@ -158,7 +175,8 @@ install -m 644 artwork/bootlogo.png "$WORK/art/spinner.png" "$WORK/art/wordmark-
 
 HOOK_ENV=(
   "OS_NAME=$OS_NAME" "OS_ID=$OS_ID" "OS_VERSION=$OS_VERSION" "OS_CODENAME=$OS_CODENAME"
-  "OS_HOSTNAME=$OS_HOSTNAME" "DEBIAN_SUITE=$DEBIAN_SUITE" "DEFAULT_WALLPAPER=$DEFAULT_WALLPAPER"
+  "OS_HOSTNAME=$OS_HOSTNAME" "DEBIAN_SUITE=$DEBIAN_SUITE" "DEFAULT_TRIBE=$DEFAULT_TRIBE"
+  "DEFAULT_WALLPAPER=/usr/share/$OS_ID/tribes/$DEFAULT_TRIBE/wallpapers/$DEFAULT_WALLPAPER"
 )
 for hook in hooks/*.sh; do
   [[ -e $hook ]] || continue

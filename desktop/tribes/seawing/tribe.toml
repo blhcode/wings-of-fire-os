@@ -1,0 +1,20 @@
+name = "SeaWing"
+realm = "Pyrrhia"
+description = "Dragons of the Kingdom of the Sea, blue and green, who speak Aquatique with their glowing stripes."
+dark = true
+pattern = "waves"
+default_wallpaper = "turtle.png"
+
+[colors]
+accent = "#1ec6cf"
+accent_alt = "#3a7bff"
+background = "#051c28"
+surface = "#0b2d3d"
+text = "#e3f8fb"
+
+[editor]
+seal = "#1f6f8b"
+
+[sounds]
+voice = "water"
+root = 523.25

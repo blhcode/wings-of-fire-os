@@ -1,0 +1,20 @@
+name = "SkyWing"
+realm = "Pyrrhia"
+description = "Fierce fliers of the Sky Kingdom's mountain peaks, scaled in red and orange like the setting sun."
+dark = true
+pattern = "embers"
+default_wallpaper = ""
+
+[colors]
+accent = "#e0452b"
+accent_alt = "#f5a13a"
+background = "#1c0b0a"
+surface = "#2e1512"
+text = "#fbe9e2"
+
+[editor]
+seal = "#b3261e"
+
+[sounds]
+voice = "wind"
+root = 440.0

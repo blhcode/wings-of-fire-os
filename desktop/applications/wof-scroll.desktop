@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Scroll
+GenericName=Text Editor
+Comment=Write on a parchment scroll
+Exec=wof-scroll %F
+Icon=wof-scroll
+Terminal=false
+Categories=Utility;TextEditor;GTK;
+Keywords=text;editor;notes;scroll;parchment;
+MimeType=text/plain;text/x-log;text/markdown;text/x-python;text/x-python3;application/x-shellscript;text/x-script;application/json;application/xml;text/xml;application/toml;text/x-ini;text/css;text/html;application/javascript;text/x-csrc;text/x-chdr;text/x-c++src;text/x-makefile;application/x-yaml;
+StartupNotify=true

@@ -34,12 +34,48 @@ make reset-vm        # wipe the virtual SSDs to start over
 On real hardware, check the disk picked on the installer's partitioning page: the existing
 Ubuntu drive is the 1.8 TB NVMe, the new SSDs are the ~128 GB ones.
 
+## Tribes
+
+Every user picks a dragon tribe in **Pyrrhia Settings** (Settings menu, or `pyrrhia-settings`).
+The tribe sets the wallpaper, window/panel/notification colours, file and folder icons (text files
+are scrolls), terminal colours, Firefox's toolbar and new tab page, the Scroll editor's wax seal and
+Mousepad's colours, system sounds and the login screen. Each part can be switched off. The same is
+available from a terminal: `wof-tribe list`, `wof-tribe apply nightwing`, `wof-tribe set firefox off`.
+
+A tribe is a folder in `desktop/tribes/<id>/`: a `tribe.toml` (name, colours, pattern, sounds, seal
+colour) and a `wallpapers/` folder. Adding a folder adds a tribe; the themes, icons and sounds are
+generated from `tribe.toml` when the ISO is built. Tribes without a wallpaper get a patterned
+placeholder until one is added. Users can add their own wallpapers (or whole tribes) under
+`~/.local/share/wingsoffire/tribes/<id>/`, which the settings app's **Add wallpapers…** does for them.
+
+Firefox theming only touches files it owns (`chrome/wof-tribe*.css`, one `@import` line, one marked
+block in `user.js`), keeps everything else, and is removed completely when switched off.
+
+**Scroll** (`wof-scroll`) is the default text editor: a full editor (open/save, undo/redo,
+search and replace, syntax highlighting, line numbers, zoom) drawn as a parchment scroll that
+unrolls when it opens and rolls up when it closes. The wax seal in its toolbar cracks when there are
+unsaved changes and is stamped again on save. Animations and the seal can be turned off in its
+settings.
+
+Try the apps on this PC without building (uses a throwaway home in `build/try-home`):
+
+```sh
+make try-scroll
+make try-settings
+make preview      # build/preview/tribes.png: every tribe's icons, wallpaper and terminal colours
+make test
+```
+
 ## Layout
 
 | Path | Purpose |
 | --- | --- |
-| `config/os.conf` | Name, version, Debian release, desktop, default wallpaper, locale |
-| `artwork/wallpapers/` | Wallpapers shipped in `/usr/share/backgrounds/wingsoffire/` |
+| `config/os.conf` | Name, version, Debian release, desktop, default tribe, locale |
+| `desktop/tribes/` | One folder per tribe: `tribe.toml` + `wallpapers/` |
+| `desktop/lib/pyrrhia/` | Tribe engine: loading, theme/icon/sound generators, components, `wof-tribe` CLI, Pyrrhia Settings |
+| `desktop/lib/wofscroll/` | The Scroll text editor |
+| `desktop/bin`, `applications`, `autostart`, `libexec`, `polkit` | Launchers, menu entries, login-time theming, the login screen helper and its permission |
+| `tests/` | Unit tests (`make test`) |
 | `artwork/bootlogo.png` | Emblem on the boot loading screen (Plymouth theme in `overlay/usr/share/plymouth/themes/wingsoffire/`) |
 | `artwork/fonts/WingsOfFireTitle.otf` | The book logo's lettering, traced into a font (glyphs W I N G S O F R E, small "of"), used for the "Wings of Fire OS" wordmark |
 | `scripts/trace-font.py` | Rebuilds that font from the logo image (one-off; instructions inside) |
@@ -57,7 +93,8 @@ Ubuntu drive is the 1.8 TB NVMe, the new SSDs are the ~128 GB ones.
 1. `debootstrap` creates a minimal Debian root filesystem in `build/rootfs`.
 2. Packages from `config/packages/` are installed inside it with `apt`.
 3. The installer's bootloader packages are downloaded into an APT repository on the ISO (`pool/`, `dists/`).
-4. `overlay/` is copied in and `hooks/` are run (branding, wallpaper, installer branding).
+4. `overlay/` and `desktop/` are copied in and `hooks/` are run (branding, tribe assets, wallpaper,
+   installer branding, boot splash).
 5. The root filesystem is compressed into `live/filesystem.squashfs`.
 6. `grub-mkrescue` produces a hybrid ISO that boots on BIOS and UEFI, from a DVD or USB stick.
 

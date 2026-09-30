@@ -1,0 +1,20 @@
+name = "HiveWing"
+realm = "Pantala"
+description = "Yellow, black and red dragons of Pantala's great hive cities."
+dark = true
+pattern = "hex"
+default_wallpaper = ""
+
+[colors]
+accent = "#f2c230"
+accent_alt = "#e5412e"
+background = "#0d0b06"
+surface = "#1f1a0c"
+text = "#fff6d9"
+
+[editor]
+seal = "#c98f00"
+
+[sounds]
+voice = "buzz"
+root = 349.23

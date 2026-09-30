@@ -1,0 +1,20 @@
+name = "MudWing"
+realm = "Pyrrhia"
+description = "Big, loyal brown dragons of the marshy Mud Kingdom, raised in sibling troops."
+dark = true
+pattern = "mud"
+default_wallpaper = ""
+
+[colors]
+accent = "#c0803f"
+accent_alt = "#d9a760"
+background = "#1a130c"
+surface = "#2a1f14"
+text = "#f3e6d4"
+
+[editor]
+seal = "#7a4a22"
+
+[sounds]
+voice = "drum"
+root = 196.0

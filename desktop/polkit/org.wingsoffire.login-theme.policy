@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Wings of Fire OS</vendor>
+  <action id="org.wingsoffire.login-theme">
+    <description>Change the login screen's tribe theme</description>
+    <message>Pyrrhia Settings wants to change the login screen to match your tribe.</message>
+    <icon_name>pyrrhia-settings</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/wingsoffire/wof-login-theme</annotate>
+  </action>
+</policyconfig>

@@ -1,0 +1,20 @@
+name = "IceWing"
+realm = "Pyrrhia"
+description = "Silver-white dragons of the Ice Kingdom who breathe freezing frostbreath."
+dark = false
+pattern = "frost"
+default_wallpaper = ""
+
+[colors]
+accent = "#2f8fc9"
+accent_alt = "#9fdcf5"
+background = "#eef6fb"
+surface = "#ffffff"
+text = "#13303f"
+
+[editor]
+seal = "#4a8fb8"
+
+[sounds]
+voice = "ice"
+root = 880.0

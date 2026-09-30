@@ -1,0 +1,20 @@
+name = "LeafWing"
+realm = "Pantala"
+description = "Green forest dragons of Pantala with leaf-shaped wings, some gifted with leafspeak."
+dark = true
+pattern = "leaves"
+default_wallpaper = ""
+
+[colors]
+accent = "#5bb043"
+accent_alt = "#b6d957"
+background = "#0c1a0b"
+surface = "#172d15"
+text = "#eaf7e2"
+
+[editor]
+seal = "#3f7f2e"
+
+[sounds]
+voice = "pluck"
+root = 587.33

@@ -1,0 +1,13 @@
+[Default Applications]
+text/plain=wof-scroll.desktop;org.xfce.mousepad.desktop;
+text/x-log=wof-scroll.desktop;org.xfce.mousepad.desktop;
+text/markdown=wof-scroll.desktop;org.xfce.mousepad.desktop;
+text/x-python=wof-scroll.desktop;org.xfce.mousepad.desktop;
+text/x-python3=wof-scroll.desktop;org.xfce.mousepad.desktop;
+application/x-shellscript=wof-scroll.desktop;org.xfce.mousepad.desktop;
+application/json=wof-scroll.desktop;org.xfce.mousepad.desktop;
+application/toml=wof-scroll.desktop;org.xfce.mousepad.desktop;
+text/x-ini=wof-scroll.desktop;org.xfce.mousepad.desktop;
+application/xml=wof-scroll.desktop;org.xfce.mousepad.desktop;
+text/xml=wof-scroll.desktop;org.xfce.mousepad.desktop;
+application/x-yaml=wof-scroll.desktop;org.xfce.mousepad.desktop;

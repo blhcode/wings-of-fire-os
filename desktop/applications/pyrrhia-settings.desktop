@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Pyrrhia Settings
+GenericName=Tribe Settings
+Comment=Choose your dragon tribe, wallpaper and which parts of the desktop follow it
+Exec=pyrrhia-settings
+Icon=pyrrhia-settings
+Terminal=false
+Categories=Settings;DesktopSettings;X-XFCE-SettingsDialog;X-XFCE-PersonalSettings;
+Keywords=tribe;theme;wallpaper;wings of fire;dragon;appearance;
+StartupNotify=true

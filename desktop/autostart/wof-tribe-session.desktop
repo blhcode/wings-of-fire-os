@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Wings of Fire tribe theme
+Comment=Applies your tribe's theme when you log in
+Exec=wof-tribe session-start
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-XFCE-Autostart-Override=true

@@ -1,0 +1,35 @@
+#!/bin/sh
+# Runs as root via pkexec. Points the login screen at a system tribe's theme and wallpaper.
+# usage: wof-login-theme TRIBE_ID [WALLPAPER_FILE_NAME]
+set -eu
+
+TRIBES=/usr/share/wingsoffire/tribes
+CONF=/etc/lightdm/lightdm-gtk-greeter.conf.d/60-wingsoffire-tribe.conf
+
+tribe=${1:-}
+wall=${2:-}
+case "$tribe" in ''|*[!a-z0-9-]*) echo "invalid tribe id" >&2; exit 2 ;; esac
+case "$wall" in */*|.*) echo "invalid wallpaper name" >&2; exit 2 ;; esac
+[ -f "$TRIBES/$tribe/tribe.toml" ] || { echo "unknown tribe: $tribe" >&2; exit 2; }
+
+name=$(sed -n 's/^name *= *"\([A-Za-z0-9 -]*\)".*/\1/p' "$TRIBES/$tribe/tribe.toml" | head -n1)
+[ -n "$name" ] || { echo "tribe has no name" >&2; exit 2; }
+
+if [ -z "$wall" ] || [ ! -f "$TRIBES/$tribe/wallpapers/$wall" ]; then
+  wall=$(sed -n 's/^default_wallpaper *= *"\([^"/]*\)".*/\1/p' "$TRIBES/$tribe/tribe.toml" | head -n1)
+fi
+if [ -z "$wall" ] || [ ! -f "$TRIBES/$tribe/wallpapers/$wall" ]; then
+  wall=$(ls "$TRIBES/$tribe/wallpapers" 2>/dev/null | head -n1)
+fi
+
+mkdir -p "$(dirname "$CONF")"
+{
+  echo "# Written by Pyrrhia Settings (Wings of Fire OS)"
+  echo "[greeter]"
+  echo "theme-name=WoF-$name"
+  echo "icon-theme-name=WoF-$name"
+  [ -n "$wall" ] && echo "background=$TRIBES/$tribe/wallpapers/$wall"
+  echo "font-name=EB Garamond 12"
+} > "$CONF.tmp"
+mv "$CONF.tmp" "$CONF"
+chmod 644 "$CONF"

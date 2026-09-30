@@ -1,0 +1,20 @@
+name = "SilkWing"
+realm = "Pantala"
+description = "Butterfly-winged dragons of Pantala who spin silk, some of them flamesilk."
+dark = false
+pattern = "silk"
+default_wallpaper = ""
+
+[colors]
+accent = "#9b4fe0"
+accent_alt = "#ff9ad5"
+background = "#f7f0fb"
+surface = "#ffffff"
+text = "#2e1f3b"
+
+[editor]
+seal = "#9a4fd6"
+
+[sounds]
+voice = "harp"
+root = 783.99
