@@ -37,6 +37,12 @@ sed -i 's|^\(show[A-Za-z]*Url: *\)true|\1false|' /etc/calamares/modules/welcome.
 echo 'efiBootloaderId: "debian"' >> /etc/calamares/modules/bootloader.conf
 
 sed -i "s|^\( *\)- 'calamares-settings-debian'|&\n\1- 'calamares'|" /etc/calamares/modules/packages.conf
+# Offline, apt only knows the packages on the ISO and stops at any other name, so only list the
+# live packages that are installed.
+for pkg in $(sed -n "s|^ *- '\(.*\)'\$|\1|p" /etc/calamares/modules/packages.conf); do
+  dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "ok installed" ||
+    sed -i "/^ *- '$pkg'\$/d" /etc/calamares/modules/packages.conf
+done
 
 sed -i "s|^RELEASE=.*|RELEASE=\"$DEBIAN_SUITE\"|" /usr/share/calamares/helpers/calamares-sources-media
 cat > /usr/share/calamares/helpers/calamares-sources-final <<'EOF'
